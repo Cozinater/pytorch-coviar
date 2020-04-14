@@ -133,15 +133,15 @@ def train(train_loader, model, criterion, optimizer, epoch, cur_lr):
 
         data_time.update(time.time() - end)
 
-        target = target.cuda(async=True)
-        input_var = torch.autograd.Variable(input)
-        target_var = torch.autograd.Variable(target)
+        target = target.cuda(non_blocking=True)
+        #input_var = torch.autograd.Variable(input)
+        #target_var = torch.autograd.Variable(target)
 
-        output = model(input_var)
+        output = model(input)
         output = output.view((-1, args.num_segments) + output.size()[1:])
         output = torch.mean(output, dim=1)
 
-        loss = criterion(output, target_var)
+        loss = criterion(output, target)
 
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
         losses.update(loss.data[0], input.size(0))
@@ -181,14 +181,14 @@ def validate(val_loader, model, criterion):
 
     end = time.time()
     for i, (input, target) in enumerate(val_loader):
-        target = target.cuda(async=True)
-        input_var = torch.autograd.Variable(input, volatile=True)
-        target_var = torch.autograd.Variable(target, volatile=True)
-
-        output = model(input_var)
-        output = output.view((-1, args.num_segments) + output.size()[1:])
-        output = torch.mean(output, dim=1)
-        loss = criterion(output, target_var)
+        target = target.cuda(non_blocking=True)
+        #input_var = torch.autograd.Variable(input, volatile=True)
+        #target_var = torch.autograd.Variable(target, volatile=True)
+        with torch.no_grad():
+            output = model(input)
+            output = output.view((-1, args.num_segments) + output.size()[1:])
+            output = torch.mean(output, dim=1)
+            loss = criterion(output, target)
 
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
 

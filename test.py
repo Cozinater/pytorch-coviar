@@ -91,8 +91,9 @@ def main():
     output = []
 
     def forward_video(data):
-        input_var = torch.autograd.Variable(data, volatile=True)
-        scores = net(input_var)
+        #input_var = torch.autograd.Variable(data, volatile=True)
+        with torch.no_grad():
+            scores = net(input)
         scores = scores.view((-1, args.test_segments * args.test_crops) + scores.size()[1:])
         scores = torch.mean(scores, dim=1)
         return scores.data.cpu().numpy().copy()
