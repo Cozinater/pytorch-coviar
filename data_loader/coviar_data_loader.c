@@ -35,15 +35,15 @@ void create_and_load_bgr(AVFrame *pFrame, AVFrame *pFrameBGR, uint8_t *buffer,
     avpicture_fill((AVPicture*) pFrameBGR, buffer, AV_PIX_FMT_BGR24, pFrame->width, pFrame->height);
 
     struct SwsContext *img_convert_ctx;
-    img_convert_ctx = sws_getCachedContext(NULL, 
-        pFrame->width, pFrame->height, AV_PIX_FMT_YUV420P, 
-        pFrame->width, pFrame->height, AV_PIX_FMT_BGR24, 
+    img_convert_ctx = sws_getCachedContext(NULL,
+        pFrame->width, pFrame->height, AV_PIX_FMT_YUV420P,
+        pFrame->width, pFrame->height, AV_PIX_FMT_BGR24,
         SWS_BICUBIC, NULL, NULL, NULL);
 
-    sws_scale(img_convert_ctx, 
-        pFrame->data, 
+    sws_scale(img_convert_ctx,
+        pFrame->data,
         pFrame->linesize, 0, pFrame->height,
-        pFrameBGR->data, 
+        pFrameBGR->data,
         pFrameBGR->linesize);
     sws_freeContext(img_convert_ctx);
 
@@ -69,14 +69,14 @@ void create_and_load_bgr(AVFrame *pFrame, AVFrame *pFrameBGR, uint8_t *buffer,
 
 
 void create_and_load_mv_residual(
-    AVFrameSideData *sd, 
+    AVFrameSideData *sd,
     PyArrayObject * bgr_arr,
     PyArrayObject * mv_arr,
     PyArrayObject * res_arr,
     int cur_pos,
     int accumulate,
     int representation,
-    int *accu_src, 
+    int *accu_src,
     int *accu_src_old,
     int width,
     int height,
@@ -102,12 +102,12 @@ void create_and_load_mv_residual(
                     p_src_x = mv->src_x + x_start;
                     p_src_y = mv->src_y + y_start;
 
-                    if (p_dst_y >= 0 && p_dst_y < height && 
+                    if (p_dst_y >= 0 && p_dst_y < height &&
                         p_dst_x >= 0 && p_dst_x < width &&
-                        p_src_y >= 0 && p_src_y < height && 
+                        p_src_y >= 0 && p_src_y < height &&
                         p_src_x >= 0 && p_src_x < width) {
 
-                        // Write MV. 
+                        // Write MV.
                         if (accumulate) {
                             for (int c = 0; c < 2; ++c) {
                                 accu_src       [p_dst_x * height * 2 + p_dst_y * 2 + c]
@@ -146,7 +146,7 @@ void create_and_load_mv_residual(
             int stride_0 = height * width * 3;
             int stride_1 = width * 3;
             int stride_2 = 3;
-            
+
             int y;
 
             for (y = 0; y < height; ++y) {
@@ -163,7 +163,7 @@ void create_and_load_mv_residual(
                     }
                     location_src = src_y * stride_1 + src_x * stride_2;
 
-                    location = y * stride_1 + x * stride_2; 
+                    location = y * stride_1 + x * stride_2;
                     for (c = 0; c < 3; ++c) {
                         location2 = stride_0 + location;
                         res_data[location] =  (int32_t) bgr_data[location2]
@@ -180,63 +180,63 @@ void create_and_load_mv_residual(
 int decode_video(
     int gop_target,
     int pos_target,
-    PyArrayObject ** bgr_arr, 
-    PyArrayObject ** mv_arr, 
-    PyArrayObject ** res_arr, 
+    PyArrayObject ** bgr_arr,
+    PyArrayObject ** mv_arr,
+    PyArrayObject ** res_arr,
     int representation,
     int accumulate) {
 
     AVCodec *pCodec;
-    AVCodecContext *pCodecCtx= NULL;  
-    AVCodecParserContext *pCodecParserCtx=NULL;  
+    AVCodecContext *pCodecCtx= NULL;
+    AVCodecParserContext *pCodecParserCtx=NULL;
 
     FILE *fp_in;
     AVFrame *pFrame;
     AVFrame *pFrameBGR;
-    
-    const int in_buffer_size=4096;  
+
+    const int in_buffer_size=4096;
     uint8_t in_buffer[in_buffer_size + FF_INPUT_BUFFER_PADDING_SIZE];
     memset(in_buffer + in_buffer_size, 0, FF_INPUT_BUFFER_PADDING_SIZE);
 
-    uint8_t *cur_ptr;  
+    uint8_t *cur_ptr;
     int cur_size;
     int cur_gop = -1;
-    AVPacket packet;  
+    AVPacket packet;
     int ret, got_picture;
-      
-    avcodec_register_all();  
-  
-    pCodec = avcodec_find_decoder(AV_CODEC_ID_MPEG4);  
-    // pCodec = avcodec_find_decoder(AV_CODEC_ID_H264);  
-    if (!pCodec) {  
-        printf("Codec not found\n");  
-        return -1;  
-    }  
-    pCodecCtx = avcodec_alloc_context3(pCodec);  
-    if (!pCodecCtx){  
-        printf("Could not allocate video codec context\n");  
-        return -1;  
-    }  
 
-    pCodecParserCtx=av_parser_init(AV_CODEC_ID_MPEG4);  
-    // pCodecParserCtx=av_parser_init(AV_CODEC_ID_H264);  
-    if (!pCodecParserCtx){  
-        printf("Could not allocate video parser context\n");  
-        return -1;  
-    }  
-  
+    avcodec_register_all();
+
+    pCodec = avcodec_find_decoder(AV_CODEC_ID_MPEG4);
+    // pCodec = avcodec_find_decoder(AV_CODEC_ID_H264);
+    if (!pCodec) {
+        printf("Codec not found\n");
+        return -1;
+    }
+    pCodecCtx = avcodec_alloc_context3(pCodec);
+    if (!pCodecCtx){
+        printf("Could not allocate video codec context\n");
+        return -1;
+    }
+
+    pCodecParserCtx=av_parser_init(AV_CODEC_ID_MPEG4);
+    // pCodecParserCtx=av_parser_init(AV_CODEC_ID_H264);
+    if (!pCodecParserCtx){
+        printf("Could not allocate video parser context\n");
+        return -1;
+    }
+
     AVDictionary *opts = NULL;
-    av_dict_set(&opts, "flags2", "+export_mvs", 0);      
-    if (avcodec_open2(pCodecCtx, pCodec, &opts) < 0) {  
-        printf("Could not open codec\n");  
-        return -1;  
-    }  
-    //Input File  
-    fp_in = fopen(filename, "rb");  
-    if (!fp_in) {  
-        printf("Could not open input stream\n");  
-        return -1;  
-    }  
+    av_dict_set(&opts, "flags2", "+export_mvs", 0);
+    if (avcodec_open2(pCodecCtx, pCodec, &opts) < 0) {
+        printf("Could not open codec\n");
+        return -1;
+    }
+    //Input File
+    fp_in = fopen(filename, "rb");
+    if (!fp_in) {
+        printf("Could not open input stream\n");
+        return -1;
+    }
 
     int cur_pos = 0;
 
@@ -252,40 +252,40 @@ int decode_video(
 
     while (1) {
 
-        cur_size = fread(in_buffer, 1, in_buffer_size, fp_in);  
-        if (cur_size == 0)  
-            break;  
-        cur_ptr=in_buffer;  
-  
-        while (cur_size>0){  
-  
-            int len = av_parser_parse2(  
-                pCodecParserCtx, pCodecCtx,  
-                &packet.data, &packet.size,  
-                cur_ptr , cur_size ,  
-                AV_NOPTS_VALUE, AV_NOPTS_VALUE, AV_NOPTS_VALUE);  
+        cur_size = fread(in_buffer, 1, in_buffer_size, fp_in);
+        if (cur_size == 0)
+            break;
+        cur_ptr=in_buffer;
 
-            cur_ptr += len;  
+        while (cur_size>0){
+
+            int len = av_parser_parse2(
+                pCodecParserCtx, pCodecCtx,
+                &packet.data, &packet.size,
+                cur_ptr , cur_size ,
+                AV_NOPTS_VALUE, AV_NOPTS_VALUE, AV_NOPTS_VALUE);
+
+            cur_ptr += len;
             cur_size -= len;
 
-            if(packet.size==0)  
-                continue;  
+            if(packet.size==0)
+                continue;
 
             if (pCodecParserCtx->pict_type == AV_PICTURE_TYPE_I) {
                 ++cur_gop;
             }
 
             if (cur_gop == gop_target && cur_pos <= pos_target) {
-      
-                ret = avcodec_decode_video2(pCodecCtx, pFrame, &got_picture, &packet);  
-                if (ret < 0) {  
-                    printf("Decode Error.\n");  
-                    return -1;  
+
+                ret = avcodec_decode_video2(pCodecCtx, pFrame, &got_picture, &packet);
+                if (ret < 0) {
+                    printf("Decode Error.\n");
+                    return -1;
                 }
                 int h = pFrame->height;
                 int w = pFrame->width;
 
-                // Initialize arrays. 
+                // Initialize arrays.
                 if (! (*bgr_arr)) {
                     npy_intp dims[4];
                     dims[0] = 2;
@@ -314,7 +314,7 @@ int decode_video(
                 }
 
                 if ((representation == MV ||
-                     representation == RESIDUAL) && accumulate && 
+                     representation == RESIDUAL) && accumulate &&
                     !accu_src && !accu_src_old) {
                     accu_src     = (int*) malloc(w * h * 2 * sizeof(int));
                     accu_src_old = (int*) malloc(w * h * 2 * sizeof(int));
@@ -337,14 +337,14 @@ int decode_video(
                             pFrame, pFrameBGR, buffer, bgr_arr, cur_pos, pos_target);
                     }
 
-                    if (representation == MV || 
+                    if (representation == MV ||
                         representation == RESIDUAL) {
                         AVFrameSideData *sd;
                         sd = av_frame_get_side_data(pFrame, AV_FRAME_DATA_MOTION_VECTORS);
                         if (sd) {
                             if (accumulate || cur_pos == pos_target) {
                                 create_and_load_mv_residual(
-                                    sd, 
+                                    sd,
                                     *bgr_arr, *mv_arr, *res_arr,
                                     cur_pos,
                                     accumulate,
@@ -362,18 +362,18 @@ int decode_video(
             }
         }
     }
-  
-    //Flush Decoder  
-    packet.data = NULL;  
-    packet.size = 0;  
-    while(1){  
-        ret = avcodec_decode_video2(pCodecCtx, pFrame, &got_picture, &packet);  
-        if (ret < 0) {  
-            printf("Decode Error.\n");  
-            return -1;  
-        }  
+
+    //Flush Decoder
+    packet.data = NULL;
+    packet.size = 0;
+    while(1){
+        ret = avcodec_decode_video2(pCodecCtx, pFrame, &got_picture, &packet);
+        if (ret < 0) {
+            printf("Decode Error.\n");
+            return -1;
+        }
         if (!got_picture) {
-            break;  
+            break;
         } else if (cur_gop == gop_target) {
             if ((cur_pos == 0 && accumulate) ||
                 (cur_pos == pos_target - 1 && !accumulate) ||
@@ -381,18 +381,18 @@ int decode_video(
                 create_and_load_bgr(
                     pFrame, pFrameBGR, buffer, bgr_arr, cur_pos, pos_target);
             }
-        }  
-    }  
+        }
+    }
 
     fclose(fp_in);
 
-    av_parser_close(pCodecParserCtx);  
-  
-    av_frame_free(&pFrame);  
-    av_frame_free(&pFrameBGR);  
-    avcodec_close(pCodecCtx);  
+    av_parser_close(pCodecParserCtx);
+
+    av_frame_free(&pFrame);
+    av_frame_free(&pFrameBGR);
+    avcodec_close(pCodecCtx);
     av_free(pCodecCtx);
-    if ((representation == MV || 
+    if ((representation == MV ||
          representation == RESIDUAL) && accumulate) {
         if (accu_src) {
             free(accu_src);
@@ -401,85 +401,85 @@ int decode_video(
             free(accu_src_old);
         }
     }
-  
-    return 0;  
-}  
+
+    return 0;
+}
 
 
 void count_frames(int* gop_count, int* frame_count) {
 
     AVCodec *pCodec;
-    AVCodecContext *pCodecCtx= NULL;  
-    AVCodecParserContext *pCodecParserCtx=NULL;  
+    AVCodecContext *pCodecCtx= NULL;
+    AVCodecParserContext *pCodecParserCtx=NULL;
 
     FILE *fp_in;
-    
-    const int in_buffer_size=4096;  
+
+    const int in_buffer_size=4096;
     uint8_t in_buffer[in_buffer_size + FF_INPUT_BUFFER_PADDING_SIZE];
     memset(in_buffer + in_buffer_size, 0, FF_INPUT_BUFFER_PADDING_SIZE);
 
-    uint8_t *cur_ptr;  
-    int cur_size;  
-    AVPacket packet;  
+    uint8_t *cur_ptr;
+    int cur_size;
+    AVPacket packet;
 
-    avcodec_register_all();  
-  
-    pCodec = avcodec_find_decoder(AV_CODEC_ID_MPEG4);  
-    // pCodec = avcodec_find_decoder(AV_CODEC_ID_H264);  
-    if (!pCodec) {  
-        printf("Codec not found\n");  
-        return -1;  
-    }  
-    pCodecCtx = avcodec_alloc_context3(pCodec);  
-    if (!pCodecCtx){  
-        printf("Could not allocate video codec context\n");  
-        return -1;  
-    }  
+    avcodec_register_all();
 
-    pCodecParserCtx=av_parser_init(AV_CODEC_ID_MPEG4);  
-    // pCodecParserCtx=av_parser_init(AV_CODEC_ID_H264);  
-    if (!pCodecParserCtx){  
-        printf("Could not allocate video parser context\n");  
-        return -1;  
-    }  
+    pCodec = avcodec_find_decoder(AV_CODEC_ID_MPEG4);
+    // pCodec = avcodec_find_decoder(AV_CODEC_ID_H264);
+    if (!pCodec) {
+        printf("Codec not found\n");
+        return -1;
+    }
+    pCodecCtx = avcodec_alloc_context3(pCodec);
+    if (!pCodecCtx){
+        printf("Could not allocate video codec context\n");
+        return -1;
+    }
 
-    if (avcodec_open2(pCodecCtx, pCodec, NULL) < 0) {  
-        printf("Could not open codec\n");  
-        return -1;  
-    }  
+    pCodecParserCtx=av_parser_init(AV_CODEC_ID_MPEG4);
+    // pCodecParserCtx=av_parser_init(AV_CODEC_ID_H264);
+    if (!pCodecParserCtx){
+        printf("Could not allocate video parser context\n");
+        return -1;
+    }
 
-    //Input File  
-    fp_in = fopen(filename, "rb");  
-    if (!fp_in) {  
-        printf("Could not open input stream\n");  
-        return -1;  
-    }  
+    if (avcodec_open2(pCodecCtx, pCodec, NULL) < 0) {
+        printf("Could not open codec\n");
+        return -1;
+    }
+
+    //Input File
+    fp_in = fopen(filename, "rb");
+    if (!fp_in) {
+        printf("Could not open input stream\n");
+        return -1;
+    }
 
     *gop_count = 0;
     *frame_count = 0;
 
-    av_init_packet(&packet);  
+    av_init_packet(&packet);
 
     while (1) {
 
-        cur_size = fread(in_buffer, 1, in_buffer_size, fp_in);  
-        if (cur_size == 0)  
-            break;  
-        cur_ptr=in_buffer;  
-  
-        while (cur_size>0){  
-  
-            int len = av_parser_parse2(  
-                pCodecParserCtx, pCodecCtx,  
-                &packet.data, &packet.size,  
-                cur_ptr , cur_size ,  
-                AV_NOPTS_VALUE, AV_NOPTS_VALUE, AV_NOPTS_VALUE);  
+        cur_size = fread(in_buffer, 1, in_buffer_size, fp_in);
+        if (cur_size == 0)
+            break;
+        cur_ptr=in_buffer;
 
-            cur_ptr += len;  
-            cur_size -= len;  
+        while (cur_size>0){
 
-            if(packet.size==0)  
-                continue;  
+            int len = av_parser_parse2(
+                pCodecParserCtx, pCodecCtx,
+                &packet.data, &packet.size,
+                cur_ptr , cur_size ,
+                AV_NOPTS_VALUE, AV_NOPTS_VALUE, AV_NOPTS_VALUE);
+
+            cur_ptr += len;
+            cur_size -= len;
+
+            if(packet.size==0)
+                continue;
             if (pCodecParserCtx->pict_type == AV_PICTURE_TYPE_I) {
                 ++(*gop_count);
             }
@@ -487,10 +487,10 @@ void count_frames(int* gop_count, int* frame_count) {
         }
     }
 
-    fclose(fp_in);  
-    av_parser_close(pCodecParserCtx);  
+    fclose(fp_in);
+    av_parser_close(pCodecParserCtx);
 
-    avcodec_close(pCodecCtx);  
+    avcodec_close(pCodecCtx);
     av_free(pCodecCtx);
 
     return 0;
@@ -532,7 +532,7 @@ static PyObject *load(PyObject *self, PyObject *args)
     PyArrayObject *res_arr = NULL;
 
     if(decode_video(gop_target, pos_target,
-                    &bgr_arr, &mv_arr, &res_arr, 
+                    &bgr_arr, &mv_arr, &res_arr,
                     representation,
                     accumulate) < 0) {
         printf("Decoding video failed.\n");
