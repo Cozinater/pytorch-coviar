@@ -99,24 +99,34 @@ def main():
     for epoch in range(args.epochs):
         cur_lr = adjust_learning_rate(optimizer, epoch, args.lr_steps, args.lr_decay)
 
-        train(train_loader, model, criterion, optimizer, epoch, cur_lr)
+        loss, prec1, prec5 = train(train_loader, model, criterion, optimizer, epoch, cur_lr)
 
-        if epoch % args.eval_freq == 0 or epoch == args.epochs - 1:
-            prec1 = validate(val_loader, model, criterion)
+        #if epoch % args.eval_freq == 0 or epoch == args.epochs - 1:
+        val_loss, val_prec1, val_prec5 = validate(val_loader, model, criterion)
 
-            is_best = prec1 > best_prec1
-            best_prec1 = max(prec1, best_prec1)
-            if is_best or epoch % SAVE_FREQ == 0:
-                save_checkpoint(
-                    {
-                        'epoch': epoch + 1,
-                        'arch': args.arch,
-                        'state_dict': model.state_dict(),
-                        'best_prec1': best_prec1,
-                    },
-                    is_best,
-                    filename='checkpoint.pth.tar')
+        is_best = val_prec1 > best_prec1
+        best_prec1 = max(val_prec1, best_prec1)
+        if is_best or epoch % SAVE_FREQ == 0:
+            save_checkpoint(
+                {
+                    'epoch': epoch + 1,
+                    'arch': args.arch,
+                    'state_dict': model.state_dict(),
+                    'best_prec1': best_prec1,
+                },
+                is_best,
+                filename='checkpoint.pth.tar')
 
+        log(epoch, prec1, prec5, loss, val_prec1, val_prec5, val_loss, cur_lr)
+
+def log(epoch, prec1, prec5, loss, val_prec1, val_prec5, val_loss, cur_lr):
+    f = open("pytorch_coviar_", args.representation ,"_output.log")
+    f.write(f.write('Epoch:{0} prec@1:{accuracy1:.3f} prec@5:{accuracy5:.3f} test_prec@1:{val_accuracy1:.3f} '
+            'test_prec@5:{val_accuracy5:.3f} loss:{loss:.5f} val_loss:{val_loss:.5f}'
+            'cur_lr:{cur_lr:.5f} \n'
+            .format(epoch, accuracy1=prec1, accuracy5=prec5, val_accuracy1=val_prec1, val_accuracy5=val_prec5,
+                    loss=loss, val_loss=val_loss, cur_lr = cur_lr))
+)
 
 def train(train_loader, model, criterion, optimizer, epoch, cur_lr):
     batch_time = AverageMeter()
@@ -171,6 +181,8 @@ def train(train_loader, model, criterion, optimizer, epoch, cur_lr):
                        top5=top5,
                        lr=cur_lr)))
 
+    return losses.avg, top1.avg, top5.avg
+
 def validate(val_loader, model, criterion):
     batch_time = AverageMeter()
     losses = AverageMeter()
@@ -214,7 +226,7 @@ def validate(val_loader, model, criterion):
     print(('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f} Loss {loss.avg:.5f}'
            .format(top1=top1, top5=top5, loss=losses)))
 
-    return top1.avg
+    return losses.avg, top1.avg, top5.avg
 
 
 def save_checkpoint(state, is_best, filename):
