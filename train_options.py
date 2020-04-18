@@ -23,6 +23,10 @@ parser.add_argument('--num_segments', type=int, default=3,
                     help='number of TSN segments.')
 parser.add_argument('--no-accumulation', action='store_true',
                     help='disable accumulation of motion vectors and residuals.')
+parser.add_argument('--no-TopKAtt', type=bool, default=False,
+                    help='enable TopKAtt feature in the model')
+parser.add_argument('--topk', type=int, default=16,
+                    help='enable TopKAtt feature in the model')
 
 # Training.
 parser.add_argument('--epochs', default=500, type=int,

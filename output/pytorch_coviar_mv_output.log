@@ -1,0 +1,9 @@
+Epoch:0 prec@1:6.387 prec@5:22.633 test_prec@1:8.824 test_prec@5:25.686 loss:4.12687 val_loss:3.94434cur_lr:0.00500 
+Epoch:0 prec@1:6.667 prec@5:22.549 test_prec@1:9.608 test_prec@5:31.176 loss:4.01778 val_loss:3.69854cur_lr:0.00500
+Epoch:1 prec@1:13.922 prec@5:37.003 test_prec@1:11.176 test_prec@5:35.294 loss:3.48528 val_loss:3.59374cur_lr:0.00500
+Epoch:2 prec@1:17.759 prec@5:45.462 test_prec@1:12.810 test_prec@5:37.843 loss:3.25243 val_loss:3.57867cur_lr:0.00500
+Epoch:3 prec@1:20.364 prec@5:49.216 test_prec@1:15.817 test_prec@5:42.157 loss:3.13876 val_loss:3.47414cur_lr:0.00500
+Epoch:4 prec@1:22.213 prec@5:52.493 test_prec@1:18.039 test_prec@5:44.837 loss:3.01084 val_loss:3.38361cur_lr:0.00500
+Epoch:5 prec@1:24.986 prec@5:55.938 test_prec@1:20.261 test_prec@5:48.301 loss:2.90287 val_loss:3.31090cur_lr:0.00500
+Epoch:6 prec@1:26.443 prec@5:58.880 test_prec@1:19.542 test_prec@5:48.693 loss:2.79699 val_loss:3.34817cur_lr:0.00500
+Epoch:7 prec@1:28.739 prec@5:60.700 test_prec@1:22.353 test_prec@5:50.654 loss:2.72040 val_loss:3.27370cur_lr:0.00500

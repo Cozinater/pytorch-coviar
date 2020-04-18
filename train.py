@@ -36,7 +36,7 @@ def main():
     else:
         raise ValueError('Unknown dataset '+ args.data_name)
 
-    model = Model(num_class, args.num_segments, args.representation,
+    model = Model(num_class, args.num_segments, args.representation, args.no_TopKAtt, args.topk,
                   base_model=args.arch)
     print(model)
 
@@ -120,13 +120,12 @@ def main():
         log(epoch, prec1, prec5, loss, val_prec1, val_prec5, val_loss, cur_lr)
 
 def log(epoch, prec1, prec5, loss, val_prec1, val_prec5, val_loss, cur_lr):
-    f = open("pytorch_coviar_", str(args.representation) ,"_output.log")
-    f.write(f.write('Epoch:{0} prec@1:{accuracy1:.3f} prec@5:{accuracy5:.3f} test_prec@1:{val_accuracy1:.3f} '
-            'test_prec@5:{val_accuracy5:.3f} loss:{loss:.5f} val_loss:{val_loss:.5f}'
-            'cur_lr:{cur_lr:.5f} \n'
+    f = open("output/pytorch_coviar_{0}_output.log".format(args.representation),"a")
+    f.write('Epoch:{0} prec@1:{accuracy1:.3f} prec@5:{accuracy5:.3f} test_prec@1:{val_accuracy1:.3f} '
+            'test_prec@5:{val_accuracy5:.3f} loss:{loss:.5f} val_loss:{val_loss:.5f} '
+            'cur_lr:{cur_lr:.5f}\n'
             .format(epoch, accuracy1=prec1, accuracy5=prec5, val_accuracy1=val_prec1, val_accuracy5=val_prec5,
-                    loss=loss, val_loss=val_loss, cur_lr = cur_lr))
-)
+                    loss=loss, val_loss=val_loss, cur_lr=cur_lr))
 
 def train(train_loader, model, criterion, optimizer, epoch, cur_lr):
     batch_time = AverageMeter()

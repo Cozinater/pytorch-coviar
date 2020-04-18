@@ -113,11 +113,13 @@ class Flatten(nn.Module):
         return x.view(x.size(0), -1)
 
 class Model(nn.Module):
-    def __init__(self, num_class, num_segments, representation, 
+    def __init__(self, num_class, num_segments, representation, no_TopKAtt, topk,
                  base_model='resnet152'):
         super(Model, self).__init__()
         self._representation = representation
         self.num_segments = num_segments
+        self.is_TopKAtt = not no_TopKAtt
+        self.topk = topk
 
         print(("""
 Initializing model:
@@ -135,6 +137,8 @@ Initializing model:
         feature_dim = getattr(self.base_model, 'fc').in_features
         setattr(self.base_model, 'fc', nn.Linear(feature_dim, num_class))
 
+        self.topfeat = nn.Sequential(TopKAtt(1024, 1024, self.topk),)
+
         if self._representation == 'mv':
             setattr(self.base_model, 'conv1',
                     nn.Conv2d(2, 64, 
@@ -146,6 +150,10 @@ Initializing model:
         if self._representation == 'residual':
             self.data_bn = nn.BatchNorm2d(3)
 
+        #if self.is_TopKAtt and self._representation in ['mv', 'residual']:
+
+
+
     def _prepare_base_model(self, base_model):
 
         if 'resnet' in base_model:
@@ -155,12 +163,29 @@ Initializing model:
         else:
             raise ValueError('Unknown base model: {}'.format(base_model))
 
+    @staticmethod
+    def basic_forward(basenet, x):
+        x = basenet.conv1(x)
+        x = basenet.bn1(x)
+        x = basenet.relu(x)
+        x = basenet.maxpool(x)
+
+        x = basenet.layer1(x)
+        x = basenet.layer2(x)
+        x = basenet.layer3(x)
+        return x
+
     def forward(self, input):
         input = input.view((-1, ) + input.size()[-3:])
         if self._representation in ['mv', 'residual']:
             input = self.data_bn(input)
 
-        base_out = self.base_model(input)
+        if self.is_TopKAtt:
+            feat_flow_0 = Model.basic_forward(self.base_model, input)
+            feat_flow_1, _ = self.topfeat(feat_flow_0)
+            base_out = self.base_model.layer4(feat_flow_1)
+        else:
+            base_out = self.base_model(input)
         return base_out
 
     @property
