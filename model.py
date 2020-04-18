@@ -1,9 +1,109 @@
 """Model definition."""
 
+import torch
 from torch import nn
+import torch.nn.functional as F
+#from utils.cat import cat
 from transforms import GroupMultiScaleCrop
 from transforms import GroupRandomHorizontalFlip
 import torchvision
+import numpy as np
+
+
+dp_rate = 0.2
+norm_layer = nn.BatchNorm2d
+
+def conv1(in_channels, out_channels, relu=True):
+    blocks = nn.Sequential(
+        nn.Conv1d(in_channels, out_channels, 1, bias=False),
+        nn.BatchNorm1d(out_channels),
+        nn.ReLU(inplace=True),
+        nn.Conv1d(out_channels, out_channels, 1, bias=False),
+        nn.BatchNorm1d(out_channels),
+    )
+    if relu:
+        blocks = nn.Sequential(
+            blocks,
+            nn.ReLU(inplace=True),
+        )
+    return blocks
+
+def conv2(in_channels, out_channels, relu=True):
+    blocks = nn.Sequential(
+        nn.Conv2d(in_channels, out_channels, 1, bias=False),
+        norm_layer(out_channels),
+        nn.ReLU(inplace=True),
+        nn.Conv2d(out_channels, out_channels, 1, bias=False),
+        norm_layer(out_channels),
+    )
+    if relu:
+        blocks = nn.Sequential(
+            blocks,
+            nn.ReLU(inplace=True),
+        )
+    return blocks
+
+def cal_sim(x_c, mu):
+    # similarity
+    z_d = torch.bmm(x_c.permute(0, 2, 1), mu)  # B x N x K
+    # normalization
+    z_d = F.softmax(z_d, dim=2)
+    z_d = z_d / (1e-6 + z_d.sum(dim=1, keepdim=True))
+    z_d = z_d.permute(0, 2, 1)  # B x K x N
+    return z_d
+
+class PPool(nn.Module):
+    """
+    module for bases
+    """
+
+    def __init__(self, channels, topk, feat_sz):
+        super(PPool, self).__init__()
+        if isinstance(feat_sz, list) or isinstance(feat_sz, tuple):
+            cell_num = np.prod(feat_sz)
+        else:
+            cell_num = feat_sz
+        self.convk = conv1(cell_num, topk)
+        self.convc = conv1(channels, channels)
+
+    def forward(self, x):
+        x = x.view(x.shape[0], x.shape[1], -1)  # B x C x N
+        x = self.convk(x.permute(0, 2, 1).contiguous())
+        x = self.convc(x.permute(0, 2, 1).contiguous())
+        return x
+
+#TopKAtt feature
+class TopKAtt(nn.Module):
+    def __init__(self, in_channels, out_channels, topk=24, poolsz=[14, 14]):
+        super(TopKAtt, self).__init__()
+        self.ppool = PPool(out_channels, topk, poolsz)
+        self.in_conv = nn.Sequential(
+            nn.Dropout2d(dp_rate),
+            conv2(in_channels, out_channels),
+        )
+        self.feat_conv = conv2(out_channels, out_channels)
+        self.gp_conv = nn.Sequential(
+            nn.AdaptiveMaxPool1d(1),
+            conv1(out_channels, out_channels),
+        )
+        self.scores = nn.Sequential(
+            conv1(out_channels, out_channels, relu=False),
+            nn.Softmax(dim=1),
+        )
+        self.topk = topk
+
+    def forward(self, x):
+        x_res = x
+        x = self.in_conv(x)
+        B, C, H, W = x.shape
+        x_c = self.feat_conv(x.clone()).view(B, C, -1)
+        x_gp = self.gp_conv(x_c)
+        x_score = self.scores(x_gp)
+        mu = self.ppool(x_c)  # B x C x K
+        mu = cat([mu, x_gp], dim=2)
+        z_d = cal_sim(x_c, mu)
+        featk = (x_score * mu.matmul(z_d)).view(B, -1, H, W) + x_res
+        return featk, mu
 
 class Flatten(nn.Module):
     def __init__(self):
@@ -45,7 +145,6 @@ Initializing model:
             self.data_bn = nn.BatchNorm2d(2)
         if self._representation == 'residual':
             self.data_bn = nn.BatchNorm2d(3)
-
 
     def _prepare_base_model(self, base_model):
 

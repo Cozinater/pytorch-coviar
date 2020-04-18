@@ -120,7 +120,7 @@ def main():
         log(epoch, prec1, prec5, loss, val_prec1, val_prec5, val_loss, cur_lr)
 
 def log(epoch, prec1, prec5, loss, val_prec1, val_prec5, val_loss, cur_lr):
-    f = open("pytorch_coviar_", args.representation ,"_output.log")
+    f = open("pytorch_coviar_", str(args.representation) ,"_output.log")
     f.write(f.write('Epoch:{0} prec@1:{accuracy1:.3f} prec@5:{accuracy5:.3f} test_prec@1:{val_accuracy1:.3f} '
             'test_prec@5:{val_accuracy5:.3f} loss:{loss:.5f} val_loss:{val_loss:.5f}'
             'cur_lr:{cur_lr:.5f} \n'
@@ -154,9 +154,9 @@ def train(train_loader, model, criterion, optimizer, epoch, cur_lr):
         loss = criterion(output, target)
 
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
-        losses.update(loss.data[0], input.size(0))
-        top1.update(prec1[0], input.size(0))
-        top5.update(prec5[0], input.size(0))
+        losses.update(loss.data, input.size(0))
+        top1.update(prec1, input.size(0))
+        top5.update(prec5, input.size(0))
 
         optimizer.zero_grad()
 
@@ -204,9 +204,9 @@ def validate(val_loader, model, criterion):
 
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
 
-        losses.update(loss.data[0], input.size(0))
-        top1.update(prec1[0], input.size(0))
-        top5.update(prec5[0], input.size(0))
+        losses.update(loss.data, input.size(0))
+        top1.update(prec1, input.size(0))
+        top5.update(prec5, input.size(0))
 
         batch_time.update(time.time() - end)
         end = time.time()
