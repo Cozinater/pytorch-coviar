@@ -31,6 +31,10 @@ parser.add_argument('--input_size', type=int, default=224)
 parser.add_argument('-j', '--workers', default=1, type=int, metavar='N',
                     help='number of workers for data loader.')
 parser.add_argument('--gpus', nargs='+', type=int, default=None)
+parser.add_argument('--no-TopKAtt', type=bool, default=False,
+                    help='enable TopKAtt feature in the model')
+parser.add_argument('--topk', type=int, default=16,
+                    help='enable TopKAtt feature in the model')
 
 args = parser.parse_args()
 
@@ -42,7 +46,7 @@ else:
     raise ValueError('Unknown dataset '+args.data_name)
 
 def main():
-    net = Model(num_class, args.test_segments, args.representation,
+    net = Model(num_class, args.test_segments, args.representation, args.no_TopKAtt, args.topk,
                 base_model=args.arch)
 
     checkpoint = torch.load(args.weights)
@@ -93,7 +97,7 @@ def main():
     def forward_video(data):
         #input_var = torch.autograd.Variable(data, volatile=True)
         with torch.no_grad():
-            scores = net(input)
+            scores = net(data)
         scores = scores.view((-1, args.test_segments * args.test_crops) + scores.size()[1:])
         scores = torch.mean(scores, dim=1)
         return scores.data.cpu().numpy().copy()

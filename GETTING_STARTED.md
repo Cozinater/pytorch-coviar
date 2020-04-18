@@ -93,6 +93,8 @@ python train.py --lr 0.005 --batch-size 80 --arch resnet18 \
  	--lr-steps 120 200 280  --epochs 360 \
  	--gpus 0
 
+python train.py --lr 0.005 --batch-size 64 --arch resnet18  --data-name hmdb51 --representation mv  --data-root /home/raymond/PycharmProjects/data/hmdb51/mpeg4_videos  --train-list data/datalists/hmdb51_split1_train.txt  --test-list data/datalists/hmdb51_split1_test.txt  --model-prefix hmdb51_mv_model  --lr-steps 120 200 280  --epochs 360  --gpus 0
+
 # Residual model.
 python train.py --lr 0.001 --batch-size 80 --arch resnet18 \
  	--data-name hmdb51 --representation residual \
@@ -156,6 +158,9 @@ python test.py --gpus 0 \
 	--test-list [test list] \
 	--weights [path to model].pth.tar \
 	--save-scores [output score filename]
+
+python test.py --gpus 0 --arch resnet18 --data-name hmdb51 --representation mv --data-root /home/raymond/PycharmProjects/data/hmdb51/mpeg4_videos --test-list data/datalists/hmdb51_split1_test.txt --weights hmdb51_mv_model_mv_model_best.pth.tar --save-scores pytorch_coviar_mv_score.npz
+
 
 ```
 performs full evaluation on the test set, and stores the results in `[output score filename]`.

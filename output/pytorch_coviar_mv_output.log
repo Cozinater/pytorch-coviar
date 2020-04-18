@@ -1,9 +1,41 @@
-Epoch:0 prec@1:6.387 prec@5:22.633 test_prec@1:8.824 test_prec@5:25.686 loss:4.12687 val_loss:3.94434cur_lr:0.00500 
-Epoch:0 prec@1:6.667 prec@5:22.549 test_prec@1:9.608 test_prec@5:31.176 loss:4.01778 val_loss:3.69854cur_lr:0.00500
-Epoch:1 prec@1:13.922 prec@5:37.003 test_prec@1:11.176 test_prec@5:35.294 loss:3.48528 val_loss:3.59374cur_lr:0.00500
-Epoch:2 prec@1:17.759 prec@5:45.462 test_prec@1:12.810 test_prec@5:37.843 loss:3.25243 val_loss:3.57867cur_lr:0.00500
-Epoch:3 prec@1:20.364 prec@5:49.216 test_prec@1:15.817 test_prec@5:42.157 loss:3.13876 val_loss:3.47414cur_lr:0.00500
-Epoch:4 prec@1:22.213 prec@5:52.493 test_prec@1:18.039 test_prec@5:44.837 loss:3.01084 val_loss:3.38361cur_lr:0.00500
-Epoch:5 prec@1:24.986 prec@5:55.938 test_prec@1:20.261 test_prec@5:48.301 loss:2.90287 val_loss:3.31090cur_lr:0.00500
-Epoch:6 prec@1:26.443 prec@5:58.880 test_prec@1:19.542 test_prec@5:48.693 loss:2.79699 val_loss:3.34817cur_lr:0.00500
-Epoch:7 prec@1:28.739 prec@5:60.700 test_prec@1:22.353 test_prec@5:50.654 loss:2.72040 val_loss:3.27370cur_lr:0.00500
+Epoch:0 prec@1:6.667 prec@5:22.549 test_prec@1:9.608 test_prec@5:31.176 loss:4.01778 val_loss:3.69854 cur_lr:0.00500
+Epoch:1 prec@1:13.922 prec@5:37.003 test_prec@1:11.176 test_prec@5:35.294 loss:3.48528 val_loss:3.59374 cur_lr:0.00500
+Epoch:2 prec@1:17.759 prec@5:45.462 test_prec@1:12.810 test_prec@5:37.843 loss:3.25243 val_loss:3.57867 cur_lr:0.00500
+Epoch:3 prec@1:20.364 prec@5:49.216 test_prec@1:15.817 test_prec@5:42.157 loss:3.13876 val_loss:3.47414 cur_lr:0.00500
+Epoch:4 prec@1:22.213 prec@5:52.493 test_prec@1:18.039 test_prec@5:44.837 loss:3.01084 val_loss:3.38361 cur_lr:0.00500
+Epoch:5 prec@1:24.986 prec@5:55.938 test_prec@1:20.261 test_prec@5:48.301 loss:2.90287 val_loss:3.31090 cur_lr:0.00500
+Epoch:6 prec@1:26.443 prec@5:58.880 test_prec@1:19.542 test_prec@5:48.693 loss:2.79699 val_loss:3.34817 cur_lr:0.00500
+Epoch:7 prec@1:28.739 prec@5:60.700 test_prec@1:22.353 test_prec@5:50.654 loss:2.72040 val_loss:3.27370 cur_lr:0.00500
+Epoch:8 prec@1:30.140 prec@5:62.801 test_prec@1:21.634 test_prec@5:49.673 loss:2.65854 val_loss:3.34940 cur_lr:0.00500
+Epoch:9 prec@1:30.812 prec@5:62.437 test_prec@1:22.026 test_prec@5:49.739 loss:2.62788 val_loss:3.27748 cur_lr:0.00500
+Epoch:10 prec@1:33.137 prec@5:65.014 test_prec@1:20.719 test_prec@5:49.608 loss:2.54531 val_loss:3.39724 cur_lr:0.00500
+Epoch:11 prec@1:34.846 prec@5:66.779 test_prec@1:21.634 test_prec@5:52.876 loss:2.48212 val_loss:3.20860 cur_lr:0.00500
+Epoch:12 prec@1:33.529 prec@5:65.630 test_prec@1:21.961 test_prec@5:50.261 loss:2.52545 val_loss:3.49071 cur_lr:0.00500
+Epoch:13 prec@1:37.759 prec@5:69.328 test_prec@1:22.484 test_prec@5:53.595 loss:2.32769 val_loss:3.24865 cur_lr:0.00500
+Epoch:14 prec@1:38.852 prec@5:70.504 test_prec@1:23.399 test_prec@5:55.033 loss:2.30465 val_loss:3.26672 cur_lr:0.00500
+Epoch:15 prec@1:40.588 prec@5:71.877 test_prec@1:24.771 test_prec@5:51.961 loss:2.25161 val_loss:3.29549 cur_lr:0.00500
+Epoch:16 prec@1:41.737 prec@5:72.157 test_prec@1:24.118 test_prec@5:54.967 loss:2.21413 val_loss:3.29565 cur_lr:0.00500
+Epoch:17 prec@1:42.493 prec@5:73.725 test_prec@1:25.098 test_prec@5:55.294 loss:2.12593 val_loss:3.33528 cur_lr:0.00500
+Epoch:18 prec@1:40.532 prec@5:73.025 test_prec@1:24.902 test_prec@5:56.405 loss:2.17575 val_loss:3.25024 cur_lr:0.00500
+Epoch:19 prec@1:44.482 prec@5:75.966 test_prec@1:22.614 test_prec@5:53.333 loss:2.02514 val_loss:3.40746 cur_lr:0.00500
+Epoch:20 prec@1:45.210 prec@5:76.527 test_prec@1:23.922 test_prec@5:53.137 loss:2.02392 val_loss:3.55755 cur_lr:0.00500
+Epoch:21 prec@1:45.154 prec@5:75.910 test_prec@1:23.007 test_prec@5:52.026 loss:2.02554 val_loss:3.52317 cur_lr:0.00500
+Epoch:22 prec@1:47.619 prec@5:76.891 test_prec@1:24.314 test_prec@5:55.033 loss:1.93609 val_loss:3.46248 cur_lr:0.00500
+Epoch:23 prec@1:47.843 prec@5:78.123 test_prec@1:26.013 test_prec@5:55.621 loss:1.90448 val_loss:3.40928 cur_lr:0.00500
+Epoch:24 prec@1:46.667 prec@5:79.636 test_prec@1:23.922 test_prec@5:53.399 loss:1.87507 val_loss:3.56317 cur_lr:0.00500
+Epoch:25 prec@1:49.188 prec@5:79.608 test_prec@1:26.732 test_prec@5:56.209 loss:1.86587 val_loss:3.36649 cur_lr:0.00500
+Epoch:26 prec@1:49.244 prec@5:78.880 test_prec@1:25.882 test_prec@5:55.490 loss:1.81966 val_loss:3.39075 cur_lr:0.00500
+Epoch:27 prec@1:48.347 prec@5:79.916 test_prec@1:25.359 test_prec@5:56.209 loss:1.83973 val_loss:3.53995 cur_lr:0.00500
+Epoch:28 prec@1:51.289 prec@5:81.513 test_prec@1:26.013 test_prec@5:56.144 loss:1.75846 val_loss:3.55206 cur_lr:0.00500
+Epoch:29 prec@1:52.045 prec@5:81.625 test_prec@1:24.510 test_prec@5:57.059 loss:1.74251 val_loss:3.51063 cur_lr:0.00500
+Epoch:30 prec@1:53.501 prec@5:83.025 test_prec@1:26.013 test_prec@5:54.641 loss:1.66918 val_loss:3.50883 cur_lr:0.00500
+Epoch:31 prec@1:53.894 prec@5:83.221 test_prec@1:26.340 test_prec@5:55.948 loss:1.64878 val_loss:3.63681 cur_lr:0.00500
+Epoch:32 prec@1:55.910 prec@5:84.342 test_prec@1:25.686 test_prec@5:56.863 loss:1.59102 val_loss:3.53450 cur_lr:0.00500
+Epoch:33 prec@1:53.501 prec@5:83.333 test_prec@1:26.144 test_prec@5:54.837 loss:1.68051 val_loss:3.57578 cur_lr:0.00500
+Epoch:34 prec@1:56.891 prec@5:84.986 test_prec@1:25.948 test_prec@5:56.078 loss:1.54494 val_loss:3.63384 cur_lr:0.00500
+Epoch:35 prec@1:54.258 prec@5:84.202 test_prec@1:26.536 test_prec@5:55.425 loss:1.60188 val_loss:3.59176 cur_lr:0.00500
+Epoch:36 prec@1:56.471 prec@5:85.994 test_prec@1:24.837 test_prec@5:53.595 loss:1.52435 val_loss:3.77251 cur_lr:0.00500
+Epoch:37 prec@1:57.787 prec@5:85.966 test_prec@1:27.974 test_prec@5:54.967 loss:1.51371 val_loss:3.65413 cur_lr:0.00500
+Epoch:38 prec@1:57.619 prec@5:85.126 test_prec@1:27.516 test_prec@5:56.144 loss:1.49161 val_loss:3.60059 cur_lr:0.00500
+Epoch:39 prec@1:59.216 prec@5:87.143 test_prec@1:26.144 test_prec@5:55.882 loss:1.43109 val_loss:3.69242cur_lr:0.00500
+Epoch:40 prec@1:57.647 prec@5:85.686 test_prec@1:26.536 test_prec@5:57.647 loss:1.50223 val_loss:3.77360cur_lr:0.00500

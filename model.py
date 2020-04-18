@@ -180,12 +180,12 @@ Initializing model:
         if self._representation in ['mv', 'residual']:
             input = self.data_bn(input)
 
-        if self.is_TopKAtt:
-            feat_flow_0 = Model.basic_forward(self.base_model, input)
-            feat_flow_1, _ = self.topfeat(feat_flow_0)
-            base_out = self.base_model.layer4(feat_flow_1)
-        else:
-            base_out = self.base_model(input)
+        # if self.is_TopKAtt:
+        #     feat_flow_0 = Model.basic_forward(self.base_model, input)
+        #     feat_flow_1, _ = self.topfeat(feat_flow_0)
+        #     base_out = self.base_model.layer4(feat_flow_1)
+        # else:
+        base_out = self.base_model(input)
         return base_out
 
     @property
