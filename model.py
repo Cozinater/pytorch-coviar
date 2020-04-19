@@ -3,12 +3,10 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-#from utils.cat import cat
 from transforms import GroupMultiScaleCrop
 from transforms import GroupRandomHorizontalFlip
 import torchvision
 import numpy as np
-
 
 dp_rate = 0.2
 norm_layer = nn.BatchNorm2d
@@ -42,6 +40,14 @@ def conv2(in_channels, out_channels, relu=True):
             nn.ReLU(inplace=True),
         )
     return blocks
+
+def cat(tensors, dim=0):
+    """
+    Efficient version of torch.cat that avoids a copy if there is only a single element in a list
+    """
+    if len(tensors) == 1:
+        return tensors[0]
+    return torch.cat(tensors, dim)
 
 def cal_sim(x_c, mu):
     # similarity
@@ -121,6 +127,8 @@ class Model(nn.Module):
         self.is_TopKAtt = not no_TopKAtt
         self.topk = topk
 
+        print(self.is_TopKAtt)
+
         print(("""
 Initializing model:
     base model:         {}.
@@ -137,7 +145,7 @@ Initializing model:
         feature_dim = getattr(self.base_model, 'fc').in_features
         setattr(self.base_model, 'fc', nn.Linear(feature_dim, num_class))
 
-        self.topfeat = nn.Sequential(TopKAtt(1024, 1024, self.topk),)
+        self.topfeat = nn.Sequential(TopKAtt(256, 256, self.topk),)
 
         if self._representation == 'mv':
             setattr(self.base_model, 'conv1',
@@ -149,10 +157,6 @@ Initializing model:
             self.data_bn = nn.BatchNorm2d(2)
         if self._representation == 'residual':
             self.data_bn = nn.BatchNorm2d(3)
-
-        #if self.is_TopKAtt and self._representation in ['mv', 'residual']:
-
-
 
     def _prepare_base_model(self, base_model):
 
@@ -180,12 +184,16 @@ Initializing model:
         if self._representation in ['mv', 'residual']:
             input = self.data_bn(input)
 
-        # if self.is_TopKAtt:
-        #     feat_flow_0 = Model.basic_forward(self.base_model, input)
-        #     feat_flow_1, _ = self.topfeat(feat_flow_0)
-        #     base_out = self.base_model.layer4(feat_flow_1)
-        # else:
-        base_out = self.base_model(input)
+        if self.is_TopKAtt:
+            feat_flow_0 = Model.basic_forward(self.base_model, input)
+            feat_flow_1, _ = self.topfeat(feat_flow_0)
+            x = self.base_model.layer4(feat_flow_1)
+            x = self.base_model.avgpool(x)
+            x = torch.flatten(x, 1)
+            base_out = self.base_model.fc(x)
+        else:
+            base_out = self.base_model(input)
+
         return base_out
 
     @property
