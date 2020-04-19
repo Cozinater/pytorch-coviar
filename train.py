@@ -3,6 +3,7 @@
 import shutil
 import time
 import numpy as np
+import os
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -15,7 +16,7 @@ from train_options import parser
 from transforms import GroupCenterCrop
 from transforms import GroupScale
 
-SAVE_FREQ = 40
+SAVE_FREQ = 1
 PRINT_FREQ = 20
 best_prec1 = 0
 
@@ -23,6 +24,7 @@ best_prec1 = 0
 def main():
     global args
     global best_prec1
+    start_epoch = 0
     args = parser.parse_args()
 
     print('Training arguments:')
@@ -90,13 +92,42 @@ def main():
 
         params += [{'params': value, 'lr': args.lr, 'lr_mult': lr_mult, 'decay_mult': decay_mult}]
 
+
     optimizer = torch.optim.Adam(
         params,
         weight_decay=args.weight_decay,
         eps=0.001)
     criterion = torch.nn.CrossEntropyLoss().cuda()
 
-    for epoch in range(args.epochs):
+    # resume training from previous checkpoint
+    if args.weights is not None:
+        if os.path.isfile(args.weights):
+            print("=> loading checkpoint '{}'".format(args.weights))
+            checkpoint = torch.load(args.weights)
+            print("model epoch {} best prec@1: {}".format(checkpoint['epoch'], checkpoint['best_prec1']))
+            start_epoch = checkpoint['epoch']
+            model.load_state_dict(checkpoint['state_dict'])
+
+            optimizer.load_state_dict(checkpoint['optimizer'])
+
+            def load_opt_update_cuda(optimizer, cuda_id):
+                for state in optimizer.state.values():
+                    for k, v in state.items():
+                        if torch.is_tensor(v):
+                            state[k] = v.cuda(cuda_id)
+
+            load_opt_update_cuda(optimizer, args.gpus[0])
+
+    # print("Model's state_dict:")
+    # for param_tensor in model.state_dict():
+    #     print(param_tensor, "\t", model.state_dict()[param_tensor].size())
+    #
+    # # Print optimizer's state_dict
+    # print("Optimizer's state_dict:")
+    # for var_name in optimizer.state_dict():
+    #     print(var_name, "\t", optimizer.state_dict()[var_name])
+
+    for epoch in range(start_epoch, args.epochs):
         cur_lr = adjust_learning_rate(optimizer, epoch, args.lr_steps, args.lr_decay)
 
         loss, prec1, prec5 = train(train_loader, model, criterion, optimizer, epoch, cur_lr)
@@ -112,6 +143,7 @@ def main():
                     'epoch': epoch + 1,
                     'arch': args.arch,
                     'state_dict': model.state_dict(),
+                    'optimizer': optimizer.state_dict(),
                     'best_prec1': best_prec1,
                 },
                 is_best,

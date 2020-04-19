@@ -37,8 +37,5 @@ Epoch:35 prec@1:54.258 prec@5:84.202 test_prec@1:26.536 test_prec@5:55.425 loss:
 Epoch:36 prec@1:56.471 prec@5:85.994 test_prec@1:24.837 test_prec@5:53.595 loss:1.52435 val_loss:3.77251 cur_lr:0.00500
 Epoch:37 prec@1:57.787 prec@5:85.966 test_prec@1:27.974 test_prec@5:54.967 loss:1.51371 val_loss:3.65413 cur_lr:0.00500
 Epoch:38 prec@1:57.619 prec@5:85.126 test_prec@1:27.516 test_prec@5:56.144 loss:1.49161 val_loss:3.60059 cur_lr:0.00500
-Epoch:39 prec@1:59.216 prec@5:87.143 test_prec@1:26.144 test_prec@5:55.882 loss:1.43109 val_loss:3.69242cur_lr:0.00500
-Epoch:40 prec@1:57.647 prec@5:85.686 test_prec@1:26.536 test_prec@5:57.647 loss:1.50223 val_loss:3.77360cur_lr:0.00500
-Epoch:0 prec@1:7.227 prec@5:23.221 test_prec@1:11.699 test_prec@5:31.503 loss:4.08141 val_loss:3.87239 cur_lr:0.00500
-Epoch:1 prec@1:14.342 prec@5:38.235 test_prec@1:10.392 test_prec@5:35.229 loss:3.53486 val_loss:3.74518 cur_lr:0.00500
-Epoch:2 prec@1:16.275 prec@5:42.801 test_prec@1:14.902 test_prec@5:42.026 loss:3.38124 val_loss:3.44329 cur_lr:0.00500
+Epoch:39 prec@1:59.216 prec@5:87.143 test_prec@1:26.144 test_prec@5:55.882 loss:1.43109 val_loss:3.69242 cur_lr:0.00500
+Epoch:40 prec@1:57.647 prec@5:85.686 test_prec@1:26.536 test_prec@5:57.647 loss:1.50223 val_loss:3.77360 cur_lr:0.00500

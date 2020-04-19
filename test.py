@@ -52,6 +52,9 @@ def main():
     checkpoint = torch.load(args.weights)
     print("model epoch {} best prec@1: {}".format(checkpoint['epoch'], checkpoint['best_prec1']))
 
+    for key in checkpoint:
+        print(key)
+
     base_dict = {'.'.join(k.split('.')[1:]): v for k,v in list(checkpoint['state_dict'].items())}
     net.load_state_dict(base_dict)
 

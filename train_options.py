@@ -41,6 +41,7 @@ parser.add_argument('--lr-decay', default=0.1, type=float,
                     help='lr decay factor.')
 parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
                     help='weight decay.')
+parser.add_argument('--weights',default=None ,type=str)
 
 # Log.
 parser.add_argument('--eval-freq', default=5, type=int,
