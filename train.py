@@ -120,7 +120,7 @@ def main():
         log(epoch, prec1, prec5, loss, val_prec1, val_prec5, val_loss, cur_lr)
 
 def log(epoch, prec1, prec5, loss, val_prec1, val_prec5, val_loss, cur_lr):
-    f = open("output/pytorch_coviar_{0}_output.log".format(args.representation),"a")
+    f = open("output/pytorch_coviar_{0}_topk_{1}_output.log".format(args.representation, args.topk),"a")
     f.write('Epoch:{0} prec@1:{accuracy1:.3f} prec@5:{accuracy5:.3f} test_prec@1:{val_accuracy1:.3f} '
             'test_prec@5:{val_accuracy5:.3f} loss:{loss:.5f} val_loss:{val_loss:.5f} '
             'cur_lr:{cur_lr:.5f}\n'
@@ -229,10 +229,10 @@ def validate(val_loader, model, criterion):
 
 
 def save_checkpoint(state, is_best, filename):
-    filename = '_'.join((args.model_prefix, args.representation.lower(), filename))
+    filename = '_'.join((args.model_prefix,"topk",str(args.topk), filename))
     torch.save(state, filename)
     if is_best:
-        best_name = '_'.join((args.model_prefix, args.representation.lower(), 'model_best.pth.tar'))
+        best_name = '_'.join((args.model_prefix,"topk",str(args.topk), 'model_best.pth.tar'))
         shutil.copyfile(filename, best_name)
 
 

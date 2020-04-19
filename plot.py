@@ -3,7 +3,7 @@ from matplotlib import style
 
 style.use("ggplot")
 
-model_name ="output/pytorch_coviar_mv_output.log" #"model-1570499409" # grab whichever model name you want here. We could also just reference the MODEL_NAME if you're in a notebook still.
+model_name ="output/pytorch_coviar_mv_topk_16_output.log" #"model-1570499409" # grab whichever model name you want here. We could also just reference the MODEL_NAME if you're in a notebook still.
 
 
 def create_acc_loss_graph(model_name):
