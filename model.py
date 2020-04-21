@@ -208,7 +208,7 @@ class Model(nn.Module):
         super(Model, self).__init__()
         self._representation = representation
         self.num_segments = num_segments
-        self.is_TopKAtt = not no_TopKAtt
+        self.feature_branch = feature_branch
         self.topk = topk
 
         print(self.is_TopKAtt)
