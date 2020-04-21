@@ -38,7 +38,7 @@ def main():
     else:
         raise ValueError('Unknown dataset '+ args.data_name)
 
-    model = Model(num_class, args.num_segments, args.representation, args.no_TopKAtt, args.topk,
+    model = Model(num_class, args.num_segments, args.representation, args.feature_branch, args.topk,
                   base_model=args.arch)
     print(model)
 
@@ -152,7 +152,16 @@ def main():
         log(epoch, prec1, prec5, loss, val_prec1, val_prec5, val_loss, cur_lr)
 
 def log(epoch, prec1, prec5, loss, val_prec1, val_prec5, val_loss, cur_lr):
-    f = open("output/pytorch_coviar_{0}_topk_{1}_output.log".format(args.representation, args.topk),"a")
+    
+    if args.topk is None and args.feature_branch in ['basenl', 'a2block']:
+        f = open("output/pytorch_coviar_{0}_{1}_output.log".format(args.representation, args.feature_branch),"a")
+    elif args.topk is None and args.feature_branch is None:
+        f = open("output/pytorch_coviar_{0}_output.log".format(args.representation),"a")
+    elif args.topk is not None and args.feature_branch == 'topKAtt':
+        f = open("output/pytorch_coviar_{0}_{1}_{2}_output.log".format(args.representation, args.feature_branch, args.topk),"a")
+    else:
+        print('output not recorded!')
+        
     f.write('Epoch:{0} prec@1:{accuracy1:.3f} prec@5:{accuracy5:.3f} test_prec@1:{val_accuracy1:.3f} '
             'test_prec@5:{val_accuracy5:.3f} loss:{loss:.5f} val_loss:{val_loss:.5f} '
             'cur_lr:{cur_lr:.5f}\n'
@@ -261,10 +270,18 @@ def validate(val_loader, model, criterion):
 
 
 def save_checkpoint(state, is_best, filename):
-    filename = '_'.join((args.model_prefix,"topk",str(args.topk), filename))
+     if args.topk is None and args.feature_branch in ['basenl', 'a2block']:
+        filename = '_'.join((args.model_prefix,args.feature_branch, filename))
+    elif args.topk is None and args.feature_branch is None:
+        filename = '_'.join((args.model_prefix, filename))
+    elif args.topk is not None and args.feature_branch == 'topKAtt':
+        filename = '_'.join((args.model_prefix,args.feature_branch,str(args.topk), filename))
+    else:
+        print('checkpoint not saved!')
+    
     torch.save(state, filename)
     if is_best:
-        best_name = '_'.join((args.model_prefix,"topk",str(args.topk), 'model_best.pth.tar'))
+        best_name = '_'.join((args.model_prefix,args.feature_branch,str(args.topk), 'model_best.pth.tar'))
         shutil.copyfile(filename, best_name)
 
 
