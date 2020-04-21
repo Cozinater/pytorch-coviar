@@ -203,7 +203,7 @@ class Flatten(nn.Module):
         return x.view(x.size(0), -1)
 
 class Model(nn.Module):
-    def __init__(self, num_class, num_segments, representation, no_TopKAtt, topk,
+    def __init__(self, num_class, num_segments, representation, , topk,
                  base_model='resnet152'):
         super(Model, self).__init__()
         self._representation = representation
@@ -211,7 +211,7 @@ class Model(nn.Module):
         self.feature_branch = feature_branch
         self.topk = topk
 
-        print(self.is_TopKAtt)
+        print(self.feature_branch)
 
         print(("""
 Initializing model:
