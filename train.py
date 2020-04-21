@@ -152,7 +152,6 @@ def main():
         log(epoch, prec1, prec5, loss, val_prec1, val_prec5, val_loss, cur_lr)
 
 def log(epoch, prec1, prec5, loss, val_prec1, val_prec5, val_loss, cur_lr):
-    
     if args.topk is None and args.feature_branch in ['basenl', 'a2block']:
         f = open("output/pytorch_coviar_{0}_{1}_output.log".format(args.representation, args.feature_branch),"a")
     elif args.topk is None and args.feature_branch is None:
@@ -270,7 +269,7 @@ def validate(val_loader, model, criterion):
 
 
 def save_checkpoint(state, is_best, filename):
-     if args.topk is None and args.feature_branch in ['basenl', 'a2block']:
+    if args.topk is None and args.feature_branch in ['basenl', 'a2block']:
         filename = '_'.join((args.model_prefix,args.feature_branch, filename))
     elif args.topk is None and args.feature_branch is None:
         filename = '_'.join((args.model_prefix, filename))
