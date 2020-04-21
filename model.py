@@ -78,6 +78,90 @@ class PPool(nn.Module):
         x = self.convc(x.permute(0, 2, 1).contiguous())
         return x
 
+class BaseNL(nn.Module):
+    """Basic NL block from CVPR 2018.
+    """
+    def __init__(self, in_channels, scale_factor=1, use_norm=False):
+        super(BaseNL, self).__init__()
+        self.scale_factor = scale_factor
+        self.use_norm = use_norm
+        self.t = nn.Conv2d(in_channels, in_channels, kernel_size=1, stride=1, bias=False)
+        self.p = nn.Conv2d(in_channels, in_channels, kernel_size=1, stride=1, bias=False)
+        self.g = nn.Conv2d(in_channels, in_channels, kernel_size=1, stride=1, bias=False)
+        self.softmax = nn.Softmax(dim=2)
+        self.z = nn.Conv2d(in_channels, in_channels, kernel_size=1, stride=1, bias=False)
+        self.bn = nn.BatchNorm2d(in_channels)
+
+    def forward(self, x):
+        residual = x
+
+        if self.scale_factor != 1:
+            x = F.interpolate(x, scale_factor=1/self.scale_factor, mode='bilinear', align_corners=True)
+
+        t = self.t(x)
+        p = self.p(x)
+        g = self.g(x)
+
+        b, c, h, w = t.size()
+
+        t = t.view(b, c, -1).permute(0, 2, 1)
+        p = p.view(b, c, -1)
+        g = g.view(b, c, -1).permute(0, 2, 1)
+
+        att = torch.bmm(t, p)
+
+        if self.use_norm:
+            att = att.div(c**0.5)
+
+        att = self.softmax(att)
+        x = torch.bmm(att, g)
+
+        x = x.permute(0, 2, 1)
+        x = x.contiguous()
+        x = x.view(b, c, h, w)
+        x = self.z(x)
+        x = self.bn(x)
+        if self.scale_factor != 1:
+            x = F.interpolate(x, size=(residual.shape[2], residual.shape[3]), mode='bilinear', align_corners=True)
+
+        x = F.relu(x, inplace=True) + residual
+        return x
+    
+class A2Block(nn.Module):
+    """
+    A2-Net from NIPS 2018
+    """
+    def __init__(self, in_channels, out_channels):
+        super(A2Block, self).__init__()
+        self.down = nn.Conv2d(in_channels, out_channels, 1)
+        self.up = nn.Conv2d(out_channels, in_channels, 1)
+        self.gather_down = nn.Conv2d(in_channels, out_channels, 1)
+        self.distribue_down = nn.Conv2d(in_channels, out_channels, 1)
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, x):
+        res = x
+        A = self.down(res)
+        B = self.gather_down(res)
+        b, c, h, w = A.size()
+        A = A.view(b, c, -1)  # (b, c, h*w)
+        B = B.view(b, c, -1)  # (b, c, h*w)
+        B = self.softmax(B)
+        B = B.permute(0, 2, 1)  # (b, h*w, c)
+
+        G = torch.bmm(A, B)  # (b,c,c)
+
+        C = self.distribue_down(res)
+        C = C.view(b, c, -1)  # (b, c, h*w)
+        C = self.softmax(C)
+        C = C.permute(0, 2, 1)  # (b, h*w, c)
+
+        atten = torch.bmm(C, G)  # (b, h*w, c)
+        atten = atten.permute(0, 2, 1).view(b, c, h, -1)
+        atten = self.up(atten)
+        out = res + atten
+        return out
+    
 #TopKAtt feature
 class TopKAtt(nn.Module):
     def __init__(self, in_channels, out_channels, topk=24, poolsz=[14, 14]):
@@ -145,8 +229,11 @@ Initializing model:
         feature_dim = getattr(self.base_model, 'fc').in_features
         setattr(self.base_model, 'fc', nn.Linear(feature_dim, num_class))
 
-        self.topfeat = nn.Sequential(TopKAtt(256, 256, self.topk),)
-
+        if self.topk is not None:
+            self.topfeat = nn.Sequential(TopKAtt(256, 256, self.topk),)
+        self.a2block =  nn.Sequential(A2Block(256, 256),)
+        self.basenl =  nn.Sequential(BaseNL(256),)
+        
         if self._representation == 'mv':
             setattr(self.base_model, 'conv1',
                     nn.Conv2d(2, 64, 
@@ -184,14 +271,21 @@ Initializing model:
         if self._representation in ['mv', 'residual']:
             input = self.data_bn(input)
 
-        if self.is_TopKAtt:
+        if self.feature_branch in ['topKAtt', 'basenl', 'a2block']:
             feat_flow_0 = Model.basic_forward(self.base_model, input)
-            feat_flow_1, _ = self.topfeat(feat_flow_0)
+            
+            if self.feature_branch == 'topKAtt':
+                feat_flow_1, _ = self.topfeat(feat_flow_0)
+            if self.feature_branch == 'basenl':
+                feat_flow_1 = self.basenl(feat_flow_0)
+            if self.feature_branch == 'a2block':
+                feat_flow_1 = self.a2block(feat_flow_0)
+                
             x = self.base_model.layer4(feat_flow_1)
             x = self.base_model.avgpool(x)
             x = torch.flatten(x, 1)
             base_out = self.base_model.fc(x)
-        else:
+        elif self.feature_branch is None:
             base_out = self.base_model(input)
 
         return base_out
