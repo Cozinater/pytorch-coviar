@@ -31,10 +31,10 @@ parser.add_argument('--input_size', type=int, default=224)
 parser.add_argument('-j', '--workers', default=1, type=int, metavar='N',
                     help='number of workers for data loader.')
 parser.add_argument('--gpus', nargs='+', type=int, default=None)
-parser.add_argument('--no-TopKAtt', type=bool, default=False,
-                    help='enable TopKAtt feature in the model')
-parser.add_argument('--topk', type=int, default=16,
-                    help='enable TopKAtt feature in the model')
+parser.add_argument('--feature-branch', type=str, default=None, choices=['topKAtt', 'basenl', 'a2block'],
+                    help='enable feature branch')
+parser.add_argument('--topk', type=int, default=None,
+                    help='topk parameter for TopKAtt')
 
 args = parser.parse_args()
 
@@ -46,10 +46,13 @@ else:
     raise ValueError('Unknown dataset '+args.data_name)
 
 def main():
-    net = Model(num_class, args.test_segments, args.representation, args.no_TopKAtt, args.topk,
+    net = Model(num_class, args.test_segments, args.representation, args.feature_branch, args.topk,
                 base_model=args.arch)
 
-    checkpoint = torch.load(args.weights)
+    if args.gpus is None:
+        checkpoint = torch.load(args.weights,map_location=torch.device('cpu'))
+    else:
+        checkpoint = torch.load(args.weights)
     print("model epoch {} best prec@1: {}".format(checkpoint['epoch'], checkpoint['best_prec1']))
 
     for key in checkpoint:
