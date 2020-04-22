@@ -89,10 +89,10 @@ def main():
 
     if args.gpus is not None:
         devices = [args.gpus[i] for i in range(args.workers)]
+        net = torch.nn.DataParallel(net.cuda(devices[0]), device_ids=devices)
     else:
         devices = list(range(args.workers))
-
-    net = torch.nn.DataParallel(net.cuda(devices[0]), device_ids=devices)
+    
     net.eval()
 
     data_gen = enumerate(data_loader)
