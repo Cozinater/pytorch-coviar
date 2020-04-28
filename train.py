@@ -26,6 +26,7 @@ def main():
     global best_prec1
     start_epoch = 0
     args = parser.parse_args()
+    cur_lr = args.lr
 
     print('Training arguments:')
     for k, v in vars(args).items():
@@ -90,11 +91,12 @@ def main():
         else:
             lr_mult = 0.01
 
-        params += [{'params': value, 'lr': args.lr, 'lr_mult': lr_mult, 'decay_mult': decay_mult}]
+        params += [{'params': value, 'lr': cur_lr, 'lr_mult': lr_mult, 'decay_mult': decay_mult}]
 
 
     optimizer = torch.optim.Adam(
         params,
+        lr= cur_lr,
         weight_decay=args.weight_decay,
         eps=0.001)
     criterion = torch.nn.CrossEntropyLoss().cuda()
@@ -303,14 +305,19 @@ class AverageMeter(object):
 
 
 def adjust_learning_rate(optimizer, epoch, lr_steps, lr_decay):
-    decay = lr_decay ** (sum(epoch >= np.array(lr_steps)))
-    lr = args.lr * decay
+
+    if args.lr_scheduler == 'step-decay':
+        decay = lr_decay ** (sum(epoch >= np.array(lr_steps)))
+        lr = args.lr * decay
+    elif args.lr_scheduler == 'exponential':
+        decay = np.logspace(0, -3, args.epochs)
+        lr = args.lr * decay[epoch]
+
     wd = args.weight_decay
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr * param_group['lr_mult']
         param_group['weight_decay'] = wd * param_group['decay_mult']
     return lr
-
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
