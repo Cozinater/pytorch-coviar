@@ -96,7 +96,6 @@ def main():
 
     optimizer = torch.optim.Adam(
         params,
-        lr= cur_lr,
         weight_decay=args.weight_decay,
         eps=0.001)
     criterion = torch.nn.CrossEntropyLoss().cuda()
@@ -109,7 +108,6 @@ def main():
             print("model epoch {} best prec@1: {}".format(checkpoint['epoch'], checkpoint['best_prec1']))
             start_epoch = checkpoint['epoch']
             model.load_state_dict(checkpoint['state_dict'])
-
             optimizer.load_state_dict(checkpoint['optimizer'])
 
             def load_opt_update_cuda(optimizer, cuda_id):
@@ -282,7 +280,15 @@ def save_checkpoint(state, is_best, filename):
     
     torch.save(state, filename)
     if is_best:
-        best_name = '_'.join((args.model_prefix,args.feature_branch,str(args.topk), 'model_best.pth.tar'))
+        if args.topk is None and args.feature_branch in ['basenl', 'a2block']:
+            best_name = '_'.join((args.model_prefix, args.feature_branch, 'best.pth.tar'))
+        elif args.topk is None and args.feature_branch is None:
+            best_name = '_'.join((args.model_prefix, 'best.pth.tar'))
+        elif args.topk is not None and args.feature_branch == 'topKAtt':
+            best_name = '_'.join((args.model_prefix, args.feature_branch, str(args.topk), 'best.pth.tar'))
+        else:
+            print('best checkpoint not saved!')
+
         shutil.copyfile(filename, best_name)
 
 
@@ -309,7 +315,7 @@ def adjust_learning_rate(optimizer, epoch, lr_steps, lr_decay):
     if args.lr_scheduler == 'step-decay':
         decay = lr_decay ** (sum(epoch >= np.array(lr_steps)))
         lr = args.lr * decay
-    elif args.lr_scheduler == 'exponential':
+    elif args.lr_scheduler == 'exponential-decay':
         decay = np.logspace(0, -3, args.epochs)
         lr = args.lr * decay[epoch]
 
